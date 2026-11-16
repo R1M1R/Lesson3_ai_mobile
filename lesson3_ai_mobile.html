@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>7 класс | Основы ИИ, нейросети и этика (Доска + Смартфон)</title>
+  <style>
+    :root {
+      --bg-main: #080c17;
+      --bg-panel: #111827;
+      --bg-card: #1e293b;
+      --bg-card-hover: #283548;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-cyan: #06b6d4;
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #8b5cf6;
+      --accent-pink: #ec4899;
+      --border-color: #334155;
+      --radius: 16px;
+      --shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.6);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* ВЕРХНЯЯ ПАНЕЛЬ */
+    header {
+      background: var(--bg-panel);
+      border-bottom: 2px solid var(--border-color);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding: 6px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .brand-title {
+      font-size: 1.08rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .progress-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--accent-green);
+    }
+
+    .progress-bar-wrap {
+      width: 80px;
+      height: 8px;
+      background: #080c17;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan), var(--accent-green));
+      transition: width 0.3s ease;
+    }
+
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .timer-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-card);
+      padding: 4px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .timer-display {
+      font-family: monospace;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+    }
+
+    .btn {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+    }
+
+    .btn:hover {
+      border-color: var(--accent-cyan);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      min-height: 34px;
+      border-radius: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .btn-success {
+      background: var(--accent-green);
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .btn-danger {
+      background: var(--accent-red);
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .btn.active-tool {
+      background: var(--accent-amber);
+      color: #000;
+      border-color: #fff;
+    }
+
+    /* ПАНЕЛЬ МАРКЕРА */
+    #draw-toolbar {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: #080c17;
+      padding: 4px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--accent-amber);
+    }
+
+    .color-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .color-dot.active {
+      border-color: #fff;
+      transform: scale(1.15);
+    }
+
+    #draw-canvas {
+      position: fixed;
+      top: 64px;
+      left: 0;
+      width: 100vw;
+      height: calc(100vh - 134px);
+      z-index: 90;
+      pointer-events: none;
+    }
+
+    #draw-canvas.drawing-active {
+      pointer-events: auto;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    /* ОСНОВНОЙ КОНТЕНТ */
+    main {
+      flex: 1;
+      padding: 20px 24px 92px 24px;
+      max-width: 1480px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .slide {
+      display: none;
+      flex-direction: column;
+      gap: 18px;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .slide-title {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+    }
+
+    .slide-tag {
+      background: rgba(139, 92, 246, 0.18);
+      color: #c4b5fd;
+      border: 1px solid var(--accent-purple);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.88rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 1.22rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .highlight-box {
+      background: rgba(139, 92, 246, 0.14);
+      border-left: 4px solid var(--accent-purple);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 1rem;
+      line-height: 1.45;
+    }
+
+    ul.clean-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 1rem;
+      line-height: 1.45;
+    }
+
+    ul.clean-list li::before {
+      content: "▸ ";
+      color: var(--accent-cyan);
+      font-weight: bold;
+    }
+
+    /* МОДУЛЬ 1: АГЕНТЫ И КАРТОЧКИ */
+    .reveal-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 14px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .reveal-card.revealed {
+      border-color: var(--accent-green);
+      background: rgba(16, 185, 129, 0.12);
+    }
+
+    .reveal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.05rem;
+      font-weight: 700;
+      gap: 8px;
+    }
+
+    .reveal-body {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border-color);
+      font-size: 0.96rem;
+      color: #a7f3d0;
+      line-height: 1.45;
+    }
+
+    .reveal-card.revealed .reveal-body {
+      display: block;
+    }
+
+    /* МОДУЛЬ 2: СИМУЛЯТОР НЕЙРОСЕТИ */
+    .nn-layout {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .nn-column {
+      background: #0b1120;
+      border: 2px solid var(--border-color);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: space-between;
+    }
+
+    .nn-node {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      font-weight: 700;
+      transition: all 0.25s;
+    }
+
+    .nn-node.active-node {
+      border-color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.22);
+      box-shadow: 0 0 16px rgba(6, 182, 212, 0.35);
+    }
+
+    .nn-node.winner-node {
+      border-color: var(--accent-green);
+      background: rgba(16, 185, 129, 0.28);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.45);
+    }
+
+    .feature-btn {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      color: var(--text-main);
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.15s;
+    }
+
+    .feature-btn.feat-on {
+      border-color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.22);
+    }
+
+    /* МОДУЛЬ 3: ПРИМЕНЕНИЕ ИИ В ЖИЗНИ */
+    .app-stage {
+      background: #0b1120;
+      border: 2px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* МОДУЛЬ 4: ЭТИКА И БЕЗОПАСНОСТЬ */
+    .ethics-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .ethics-card.solved {
+      border-color: var(--accent-green);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    /* МОДУЛЬ 5: ВИКТОРИНА */
+    .quiz-option {
+      width: 100%;
+      text-align: left;
+      padding: 14px 16px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .quiz-option.correct {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: var(--accent-green);
+    }
+
+    .quiz-option.wrong {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: var(--accent-red);
+    }
+
+    /* МОДУЛЬ 6: КОНСТРУКТОР ЭССЕ */
+    .hw-box {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.15));
+      border: 2px solid var(--accent-purple);
+      border-radius: var(--radius);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .essay-preview {
+      background: #080c17;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      white-space: pre-line;
+    }
+
+    /* НИЖНЯЯ НАВИГАЦИЯ */
+    footer {
+      background: var(--bg-panel);
+      border-top: 2px solid var(--border-color);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      min-height: 40px;
+    }
+
+    .tab-btn.active {
+      background: var(--accent-cyan);
+      color: #080c17;
+      border-color: transparent;
+    }
+
+    /* МОБИЛЬНАЯ АДАПТАЦИЯ */
+    @media (max-width: 1024px) {
+      .grid-2, .grid-3, .nn-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 8px 12px;
+      }
+      .brand-title {
+        font-size: 0.95rem;
+      }
+      .desktop-only {
+        display: none !important;
+      }
+      main {
+        padding: 14px 12px 86px 12px;
+      }
+      .slide-title {
+        font-size: 1.25rem;
+      }
+      .tab-label-text {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+  <header>
+    <div class="brand">
+      <div class="brand-badge">7 КЛАСС</div>
+      <div class="brand-title">Основы ИИ, Нейросети и Этика</div>
+    </div>
+
+    <div class="progress-pill">
+      <span>🤖 <span id="prog-pct">0%</span></span>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="prog-fill"></div>
+      </div>
+    </div>
+
+    <div class="top-controls">
+      <div id="draw-toolbar">
+        <div class="color-dot active" style="background:#f59e0b" onclick="setPenColor('#f59e0b', this)"></div>
+        <div class="color-dot" style="background:#06b6d4" onclick="setPenColor('#06b6d4', this)"></div>
+        <div class="color-dot" style="background:#ec4899" onclick="setPenColor('#ec4899', this)"></div>
+        <button class="btn btn-sm btn-danger" onclick="clearCanvas()">Стереть</button>
+      </div>
+
+      <button class="btn btn-sm desktop-only" id="btn-draw" onclick="toggleDraw()">✏️ Маркер</button>
+
+      <div class="timer-box desktop-only">
+        <span class="timer-display" id="timer-display">45:00</span>
+        <button class="btn btn-sm btn-primary" id="timer-btn" onclick="toggleTimer()">▶</button>
+        <button class="btn btn-sm" onclick="resetTimer()">↺</button>
+      </div>
+
+      <button class="btn btn-sm desktop-only" onclick="toggleFullScreen()">⛶ Экран</button>
+    </div>
+  </header>
+
+  <canvas id="draw-canvas"></canvas>
+
+  <main>
+
+    <!-- СЛАЙД 1: ОСНОВЫ ИИ, МАШИННОЕ ОБУЧЕНИЕ И АГЕНТЫ -->
+    <section class="slide active" id="slide-0">
+      <div class="slide-header">
+        <div class="slide-title">1. Что такое ИИ, Машинное обучение и Агенты?</div>
+        <div class="slide-tag">Шаг 1 из 6</div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🧠 Обычная программа против Машинного обучения</div>
+          <div class="highlight-box">
+            <strong>Искусственный интеллект (ИИ / AI)</strong> — это технология, позволяющая компьютерам выполнять задачи, требующие человеческого разума: распознавать образы, понимать речь, обучаться на опыте и принимать решения.
+          </div>
+          <ul class="clean-list">
+            <li><strong>Обычная программа:</strong> работает строго по правилам, которые заранее написал программист (например, калькулятор: `2 + 2 = 4`). Шаг в сторону — ошибка.</li>
+            <li><strong>Машинное обучение (Machine Learning / ML):</strong> программист не пишет готовые правила, а загружает в компьютер тысячи примеров (<strong>датасет</strong>), и алгоритм <strong>сам находит закономерности</strong>.</li>
+            <li><strong>Нейронная сеть:</strong> математическая модель, построенная по принципу нервных клеток (нейронов) головного мозга человека.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🤖 Как устроен Искусственный агент? (Открой все 3 этапа)</div>
+          <p style="font-size:0.95rem; color:var(--text-muted);">
+            <strong>Искусственный агент</strong> — это автономная система (робот-пылесос, автопилот, бот в игре), которая сама воспринимает среду и действует ради цели:
+          </p>
+
+          <div class="reveal-card" onclick="revealCard(this, 'ag1')">
+            <div class="reveal-header">
+              <span>1. Восприятие среды (Сенсоры и данные)</span>
+              <span style="color:var(--accent-cyan)">Открыть ▾</span>
+            </div>
+            <div class="reveal-body">
+              Агент собирает информацию об окружающем мире через <strong>камеры, микрофоны, радары, лидары</strong> или текстовые сообщения пользователя.
+            </div>
+          </div>
+
+          <div class="reveal-card" onclick="revealCard(this, 'ag2')">
+            <div class="reveal-header">
+              <span>2. Анализ и принятие решения («Мозг» ИИ)</span>
+              <span style="color:var(--accent-cyan)">Открыть ▾</span>
+            </div>
+            <div class="reveal-body">
+              Внутри агента работает обученная <strong>нейросеть или алгоритм ИИ</strong>. Он оценивает ситуацию и выбирает лучшее действие для достижения цели (например, объехать препятствие).
+            </div>
+          </div>
+
+          <div class="reveal-card" onclick="revealCard(this, 'ag3')">
+            <div class="reveal-header">
+              <span>3. Воздействие на среду (Актуаторы / Действие)</span>
+              <span style="color:var(--accent-cyan)">Открыть ▾</span>
+            </div>
+            <div class="reveal-body">
+              Агент выполняет действие в реальном или цифровом мире: <strong>поворачивает руль, включает тормоза, произносит голосовой ответ</strong> или выводит рекомендацию на экран.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- СЛАЙД 2: СИМУЛЯТОР НЕЙРОННОЙ СЕТИ И МАШИННОГО ОБУЧЕНИЯ -->
+    <section class="slide" id="slide-1">
+      <div class="slide-header">
+        <div class="slide-title">2. Симулятор: Как учится и думает Нейронная сеть</div>
+        <div class="slide-tag">Шаг 2 из 6</div>
+      </div>
+
+      <!-- Панель обучения -->
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; background:var(--bg-panel); padding:14px 18px; border-radius:14px; border:1px solid var(--border-color); flex-wrap:wrap;">
+        <div>
+          <div style="font-weight:800; font-size:1.05rem;">Этап 1: Обучение нейросети на примерах (Датасет: 10 000 фото животных)</div>
+          <div id="epoch-status" style="font-size:0.92rem; color:var(--accent-amber); margin-top:4px;">
+            Статус: Сеть ещё не обучена (Эпоха 0/3 • Точность угадывания: 35%)
+          </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-primary" onclick="trainEpoch()">⚡ Провести эпоху обучения (+Датасет)</button>
+          <button class="btn" onclick="resetNN()">↺ Сброс</button>
+        </div>
+      </div>
+
+      <!-- Архитектура из 3 слоев -->
+      <div class="nn-layout">
+        <!-- Слой 1: Входной слой -->
+        <div class="nn-column">
+          <div>
+            <div style="font-weight:800; color:var(--accent-cyan); font-size:1.1rem; margin-bottom:4px;">1. Входной слой (Признаки)</div>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:10px;">
+              Включай и выключай признаки объекта, который видит камера:
+            </p>
+          </div>
+
+          <button class="feature-btn feat-on" id="feat-1" onclick="toggleFeature(1)">
+            <span>👂 Острые треугольные уши</span><strong>1</strong>
+          </button>
+          <button class="feature-btn feat-on" id="feat-2" onclick="toggleFeature(2)">
+            <span>🐱 Умеет мурлыкать и мяукать</span><strong>1</strong>
+          </button>
+          <button class="feature-btn" id="feat-3" onclick="toggleFeature(3)">
+            <span>🦴 Лает и виляет хвостом на прогулке</span><strong>0</strong>
+          </button>
+        </div>
+
+        <!-- Слой 2: Скрытый слой -->
+        <div class="nn-column">
+          <div>
+            <div style="font-weight:800; color:var(--accent-purple); font-size:1.1rem; margin-bottom:4px;">2. Скрытый слой (Веса нейронов)</div>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:10px;">
+              Нейроны умножают входные сигналы на <strong>веса (важность)</strong> и складывают их:
+            </p>
+          </div>
+
+          <div class="nn-node active-node" id="hnode-1">
+            Нейрон H1 (Анализ формы)<br>
+            <small id="hnode-1-val" style="color:var(--accent-cyan);">Сигнал: 0.85</small>
+          </div>
+          <div class="nn-node active-node" id="hnode-2">
+            Нейрон H2 (Анализ звуков)<br>
+            <small id="hnode-2-val" style="color:var(--accent-cyan);">Сигнал: 0.90</small>
+          </div>
+          <div class="nn-node" id="hnode-3">
+            Нейрон H3 (Анализ повадок)<br>
+            <small id="hnode-3-val" style="color:var(--text-muted);">Сигнал: 0.10</small>
+          </div>
+        </div>
+
+        <!-- Слой 3: Выходной слой -->
+        <div class="nn-column">
+          <div>
+            <div style="font-weight:800; color:var(--accent-green); font-size:1.1rem; margin-bottom:4px;">3. Выходной слой (Прогноз ИИ)</div>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:10px;">
+              Итоговая вероятность, к какому классу относится объект:
+            </p>
+          </div>
+
+          <div class="nn-node winner-node" id="out-cat">
+            🐈 Это КОШКА<br>
+            <span id="prob-cat" style="font-size:1.3rem; color:var(--accent-green);">94%</span>
+          </div>
+
+          <div class="nn-node" id="out-dog">
+            🐕 Это СОБАКА<br>
+            <span id="prob-dog" style="font-size:1.3rem; color:var(--text-muted);">6%</span>
+          </div>
+
+          <div id="nn-verdict" style="font-size:0.9rem; text-align:center; color:var(--accent-amber); font-weight:700;">
+            Попробуй переключить признаки слева!
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- СЛАЙД 3: ПРИМЕНЕНИЕ ИИ В РЕАЛЬНОЙ ЖИЗНИ -->
+    <section class="slide" id="slide-2">
+      <div class="slide-header">
+        <div class="slide-title">3. Применение ИИ в реальной жизни</div>
+        <div class="slide-tag">Шаг 3 из 6</div>
+      </div>
+
+      <div class="grid-3">
+        <!-- Стенд 1: Распознавание лиц -->
+        <div class="card">
+          <div class="card-title">👤 1. Распознавание лиц</div>
+          <p style="font-size:0.92rem; color:var(--text-muted);">
+            <strong>Компьютерное зрение (CV):</strong> ИИ не хранит просто фото — он измеряет расстояния между глазами, носом и губами, превращая лицо в цифровой код (биометрический вектор).
+          </p>
+          <div class="app-stage" id="face-stage">
+            <div style="text-align:center; font-size:2.4rem;" id="face-icon">🙂</div>
+            <div id="face-status" style="font-family:monospace; font-size:0.9rem; color:var(--accent-cyan); text-align:center;">
+              Ожидание сканирования...
+            </div>
+            <button class="btn btn-primary btn-sm" style="width:100%;" onclick="runFaceScan()">
+              🔍 Запустить биометрический скан
+            </button>
+          </div>
+        </div>
+
+        <!-- Стенд 2: Виртуальные помощники -->
+        <div class="card">
+          <div class="card-title">🎙️ 2. Виртуальные помощники</div>
+          <p style="font-size:0.92rem; color:var(--text-muted);">
+            <strong>Обработка языка (NLP):</strong> Алиса, Siri и умные ассистенты переводят звуковую волну в текст, выделяют смысл фразы и находят ответ за доли секунды.
+          </p>
+          <div class="app-stage">
+            <select class="btn btn-sm" id="voice-cmd" onchange="runVoiceAssistant()" style="width:100%;">
+              <option value="weather">🗣 «Какая завтра погода в Бишкеке?»</option>
+              <option value="alarm">🗣 «Поставь будильник на 7:00 утра»</option>
+              <option value="hw">🗣 «Объясни, что такое нейронная сеть»</option>
+            </select>
+            <div id="voice-pipeline" style="font-size:0.88rem; color:var(--accent-green); line-height:1.4;">
+              Нажмите кнопку ниже, чтобы разобрать команду по шагам ИИ!
+            </div>
+            <button class="btn btn-primary btn-sm" style="width:100%;" onclick="runVoiceAssistant()">
+              🎙️ Обработать голосовую команду
+            </button>
+          </div>
+        </div>
+
+        <!-- Стенд 3: Самоуправляемый автомобиль -->
+        <div class="card">
+          <div class="card-title">🚗 3. Беспилотный автомобиль</div>
+          <p style="font-size:0.92rem; color:var(--text-muted);">
+            <strong>Автопилот:</strong> считывает дорогу через камеры, радары и лазерный дальномер (Лидар) на 360° вокруг машины.
+          </p>
+          <div class="app-stage">
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-sm" style="flex:1;" onclick="setRoad('clear')">🟢 Путь чист</button>
+              <button class="btn btn-sm" style="flex:1;" onclick="setRoad('pedestrian')">🚶 Пешеход!</button>
+              <button class="btn btn-sm" style="flex:1;" onclick="setRoad('obstacle')">🚧 Препятствие</button>
+            </div>
+            <div id="car-status" style="font-size:0.92rem; color:var(--accent-amber); font-weight:700; text-align:center;">
+              Выбери дорожную ситуацию выше!
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- СЛАЙД 4: ЭТИКА, БЕЗОПАСНОСТЬ И ОБЩЕСТВО -->
+    <section class="slide" id="slide-3">
+      <div class="slide-header">
+        <div class="slide-title">4. Этические вопросы и безопасность ИИ</div>
+        <div class="slide-tag">Шаг 4 из 6</div>
+      </div>
+
+      <p style="font-size:0.98rem; color:var(--text-muted);">
+        ИИ приносит огромную пользу, но создаёт новые вызовы. Прими правильное решение в 4 ситуациях безопасности:
+      </p>
+
+      <div class="grid-2">
+        <!-- Кейс 1 -->
+        <div class="ethics-card" id="eth-1">
+          <div>
+            <strong style="font-size:1.08rem; color:var(--accent-cyan);">🎭 1. Проблема Дипфейков (Deepfake)</strong>
+            <p style="font-size:0.92rem; color:var(--text-muted); margin-top:4px;">
+              Тебе прислали видеосообщение, где знакомый просит срочно перевести деньги, но движения губ выглядят немного странно. Что делать?
+            </p>
+          </div>
+          <select class="btn btn-sm" onchange="checkEthics(1, this.value)">
+            <option value="">— Выбрать решение —</option>
+            <option value="wrong">Сразу отправить деньги, ведь на видео его лицо</option>
+            <option value="ok">Не переводить! Перезвонить по обычной связи или задать личный вопрос (защита от ИИ-подделки)</option>
+          </select>
+          <div id="eth-msg-1" style="font-size:0.86rem; color:var(--text-muted);">Выбери безопасное действие...</div>
+        </div>
+
+        <!-- Кейс 2 -->
+        <div class="ethics-card" id="eth-2">
+          <div>
+            <strong style="font-size:1.08rem; color:var(--accent-amber);">🔐 2. Приватность и личные данные</strong>
+            <p style="font-size:0.92rem; color:var(--text-muted); margin-top:4px;">
+              Ты используешь чат-бот с ИИ для помощи в учёбе. Какие данные категорически НЕЛЬЗЯ отправлять в публичные нейросети?
+            </p>
+          </div>
+          <select class="btn btn-sm" onchange="checkEthics(2, this.value)">
+            <option value="">— Выбрать решение —</option>
+            <option value="ok">Пароли, фото паспорта, данные банковских карт и домашний адрес</option>
+            <option value="wrong">Задачи по математике и физике</option>
+          </select>
+          <div id="eth-msg-2" style="font-size:0.86rem; color:var(--text-muted);">Выбери безопасное действие...</div>
+        </div>
+
+        <!-- Кейс 3 -->
+        <div class="ethics-card" id="eth-3">
+          <div>
+            <strong style="font-size:1.08rem; color:var(--accent-purple);">⚠️ 3. «Галлюцинации» и ошибки ИИ</strong>
+            <p style="font-size:0.92rem; color:var(--text-muted); margin-top:4px;">
+              Нейросеть написала исторический доклад, но уверенно выдумала несуществующую дату. Почему так происходит и кто несёт ответственность?
+            </p>
+          </div>
+          <select class="btn btn-sm" onchange="checkEthics(3, this.value)">
+            <option value="">— Выбрать решение —</option>
+            <option value="wrong">ИИ никогда не ошибается, проверять не нужно</option>
+            <option value="ok">ИИ лишь подбирает вероятные слова; ответственность всегда несёт человек, поэтому факты нужно проверять!</option>
+          </select>
+          <div id="eth-msg-3" style="font-size:0.86rem; color:var(--text-muted);">Выбери безопасное действие...</div>
+        </div>
+
+        <!-- Кейс 4 -->
+        <div class="ethics-card" id="eth-4">
+          <div>
+            <strong style="font-size:1.08rem; color:var(--accent-green);">💼 4. Влияние на профессии и общество</strong>
+            <p style="font-size:0.92rem; color:var(--text-muted); margin-top:4px;">
+              Как развитие ИИ меняет рынок труда для будущих специалистов (врачей, учителей, программистов, дизайнеров)?
+            </p>
+          </div>
+          <select class="btn btn-sm" onchange="checkEthics(4, this.value)">
+            <option value="">— Выбрать решение —</option>
+            <option value="ok">ИИ забирает рутину и становится умным помощником для тех, кто умеет им грамотно пользоваться</option>
+            <option value="wrong">Учиться больше не нужно, роботы всё сделают сами</option>
+          </select>
+          <div id="eth-msg-4" style="font-size:0.86rem; color:var(--text-muted);">Выбери безопасное действие...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- СЛАЙД 5: ВИКТОРИНА -->
+    <section class="slide" id="slide-4">
+      <div class="slide-header">
+        <div class="slide-title">5. Блиц-проверка знаний</div>
+        <div class="slide-tag" id="quiz-score-badge">Счёт: 0 / 6</div>
+      </div>
+
+      <div class="card" style="max-width: 900px; margin: 0 auto; width: 100%;">
+        <div style="display:flex; justify-content:space-between; color:var(--text-muted); font-weight:700;">
+          <span id="quiz-progress">Вопрос 1 из 6</span>
+          <button class="btn btn-sm" onclick="restartQuiz()">↺ Заново</button>
+        </div>
+        <h3 id="quiz-question" style="font-size:1.25rem; line-height:1.4;"></h3>
+        <div id="quiz-options"></div>
+        <div id="quiz-feedback" class="highlight-box" style="display:none;"></div>
+        <button class="btn btn-primary" id="quiz-next-btn" onclick="nextQuizQuestion()" style="display:none; width:100%;">
+          Следующий вопрос ➔
+        </button>
+      </div>
+    </section>
+
+    <!-- СЛАЙД 6: КОНСПЕКТ И ИНТЕРАКТИВНЫЙ ПЛАН ЭССЕ ДЛЯ ДЗ -->
+    <section class="slide" id="slide-5">
+      <div class="slide-header">
+        <div class="slide-title">6. Конспект и Конструктор Эссе (ДЗ)</div>
+        <div class="slide-tag">Шаг 6 из 6</div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">📝 Главные понятия в тетрадь</div>
+          <ul class="clean-list">
+            <li><strong>Искусственный интеллект (ИИ)</strong> — способность компьютерных систем обучаться, анализировать данные и решать интеллектуальные задачи.</li>
+            <li><strong>Машинное обучение (ML)</strong> — метод, при котором ИИ не получает готовых правил, а сам учится находить закономерности на большом наборе примеров (<strong>датасете</strong>).</li>
+            <li><strong>Нейронная сеть</strong> — многослойная система связанных узлов (нейронов) с настраиваемыми весами (входной, скрытые и выходной слои).</li>
+            <li><strong>Искусственный агент</strong> — система, которая воспринимает среду через <strong>сенсоры</strong>, принимает решение и воздействует на мир (автопилот, умный робот).</li>
+            <li><strong>Правила безопасности ИИ:</strong> проверять факты (защита от ошибок и дипфейков) и не передавать в нейросети секретные личные данные.</li>
+          </ul>
+        </div>
+
+        <div class="hw-box">
+          <div style="font-size:0.9rem; font-weight:800; color:var(--accent-amber); text-transform:uppercase;">
+            📌 Домашнее задание (Творческое эссе на 8–12 предложений)
+          </div>
+          <div style="font-size:1.28rem; font-weight:800; color:#fff;">
+            Тема: «Будущее искусственного интеллекта: помощник или угроза?»
+          </div>
+
+          <div style="font-size:0.92rem; color:var(--text-muted);">
+            Выбери свою позицию ниже, чтобы сгенерировать опорный план аргументов для эссе:
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-sm btn-primary" onclick="setEssayPlan('helper')">🤝 Позиция 1: Верный помощник</button>
+            <button class="btn btn-sm" onclick="setEssayPlan('threat')">⚠️ Позиция 2: Опасная угроза</button>
+            <button class="btn btn-sm" onclick="setEssayPlan('balance')">⚖️ Позиция 3: Зависит от человека</button>
+          </div>
+
+          <div class="essay-preview" id="essay-plan-box"></div>
+
+          <button class="btn btn-primary" onclick="copyEssayPlan()" id="copy-hw-btn">
+            📋 Скопировать план эссе в заметки телефона
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- НИЖНЯЯ НАВИГАЦИЯ -->
+  <footer>
+    <button class="btn btn-sm" id="btn-prev" onclick="changeSlide(-1)">⬅</button>
+
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="goToSlide(0)">1<span class="tab-label-text">. Основы ИИ</span></button>
+      <button class="tab-btn" onclick="goToSlide(1)">2<span class="tab-label-text">. Нейросеть</span></button>
+      <button class="tab-btn" onclick="goToSlide(2)">3<span class="tab-label-text">. Применение</span></button>
+      <button class="tab-btn" onclick="goToSlide(3)">4<span class="tab-label-text">. Этика и защита</span></button>
+      <button class="tab-btn" onclick="goToSlide(4)">5<span class="tab-label-text">. Викторина</span></button>
+      <button class="tab-btn" onclick="goToSlide(5)">6<span class="tab-label-text">. Конспект и Эссе</span></button>
+    </div>
+
+    <button class="btn btn-sm btn-primary" id="btn-next" onclick="changeSlide(1)">➔</button>
+  </footer>
+
+  <script>
+    /* ПРОГРЕСС УРОКА */
+    const doneActions = new Set();
+    const totalActions = 12;
+
+    function markProgress(key) {
+      doneActions.add(key);
+      const pct = Math.min(100, Math.round((doneActions.size / totalActions) * 100));
+      document.getElementById('prog-pct').textContent = pct + '%';
+      document.getElementById('prog-fill').style.width = pct + '%';
+    }
+
+    function revealCard(el, key) {
+      el.classList.toggle('revealed');
+      markProgress(key);
+    }
+
+    /* НАВИГАЦИЯ ПО СЛАЙДАМ */
+    let currentSlide = 0;
+    const totalSlides = 6;
+
+    function goToSlide(index) {
+      if (index < 0 || index >= totalSlides) return;
+      currentSlide = index;
+      document.querySelectorAll('.slide').forEach((s, i) => s.classList.toggle('active', i === currentSlide));
+      document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === currentSlide));
+      document.getElementById('btn-prev').disabled = (currentSlide === 0);
+      document.getElementById('btn-next').disabled = (currentSlide === totalSlides - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function changeSlide(delta) {
+      goToSlide(currentSlide + delta);
+    }
+
+    /* ТАЙМЕР И ЭКРАН */
+    let timeSeconds = 45 * 60, timerInterval = null;
+    function updateTimerDisplay() {
+      const m = String(Math.floor(timeSeconds / 60)).padStart(2, '0');
+      const s = String(timeSeconds % 60).padStart(2, '0');
+      document.getElementById('timer-display').textContent = `${m}:${s}`;
+    }
+    function toggleTimer() {
+      const btn = document.getElementById('timer-btn');
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; btn.textContent = '▶'; }
+      else {
+        btn.textContent = '⏸';
+        timerInterval = setInterval(() => { if (timeSeconds > 0) { timeSeconds--; updateTimerDisplay(); } }, 1000);
+      }
+    }
+    function resetTimer() { clearInterval(timerInterval); timerInterval = null; timeSeconds = 45 * 60; document.getElementById('timer-btn').textContent = '▶'; updateTimerDisplay(); }
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+      else document.exitFullscreen().catch(() => {});
+    }
+
+    /* МАРКЕР ПОВЕРХ СЛАЙДОВ */
+    const canvas = document.getElementById('draw-canvas');
+    const ctx = canvas.getContext('2d');
+    let isDrawingMode = false, isPainting = false, penColor = '#f59e0b';
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight - 130; }
+    window.addEventListener('resize', resizeCanvas); resizeCanvas();
+
+    function toggleDraw() {
+      isDrawingMode = !isDrawingMode;
+      canvas.classList.toggle('drawing-active', isDrawingMode);
+      document.getElementById('btn-draw').classList.toggle('active-tool', isDrawingMode);
+      document.getElementById('draw-toolbar').style.display = isDrawingMode ? 'flex' : 'none';
+    }
+    function setPenColor(color, el) {
+      penColor = color;
+      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+      el.classList.add('active');
+    }
+    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const cx = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+      const cy = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+      return { x: cx - rect.left, y: cy - rect.top };
+    }
+    canvas.addEventListener('mousedown', e => { if (!isDrawingMode) return; isPainting = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+    canvas.addEventListener('mousemove', e => { if (!isDrawingMode || !isPainting) return; const p = getPos(e); ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.strokeStyle = penColor; ctx.lineTo(p.x, p.y); ctx.stroke(); });
+    window.addEventListener('mouseup', () => isPainting = false);
+    canvas.addEventListener('touchstart', e => { if (!isDrawingMode) return; isPainting = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }, { passive: false });
+    canvas.addEventListener('touchmove', e => { if (!isDrawingMode || !isPainting) return; e.preventDefault(); const p = getPos(e); ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.strokeStyle = penColor; ctx.lineTo(p.x, p.y); ctx.stroke(); }, { passive: false });
+    window.addEventListener('touchend', () => isPainting = false);
+
+    /* МОДУЛЬ 2: СИМУЛЯТОР НЕЙРОСЕТИ */
+    let epoch = 0;
+    const feats = { 1: 1, 2: 1, 3: 0 };
+
+    function trainEpoch() {
+      epoch = Math.min(3, epoch + 1);
+      markProgress('nn_train');
+      const acc = [35, 68, 89, 98][epoch];
+      const msg = document.getElementById('epoch-status');
+      msg.textContent = `Статус: Эпоха ${epoch}/3 завершена! Веса нейронов настроены • Точность сети: ${acc}%`;
+      msg.style.color = epoch === 3 ? '#10b981' : '#06b6d4';
+      recalcNN();
+    }
+
+    function resetNN() {
+      epoch = 0;
+      feats[1] = 1; feats[2] = 1; feats[3] = 0;
+      document.getElementById('epoch-status').textContent = 'Статус: Сеть сброшена (Эпоха 0/3 • Точность: 35%)';
+      document.getElementById('epoch-status').style.color = '#f59e0b';
+      updateFeatureButtons();
+      recalcNN();
+    }
+
+    function toggleFeature(num) {
+      feats[num] = feats[num] ? 0 : 1;
+      markProgress('nn_feat');
+      updateFeatureButtons();
+      recalcNN();
+    }
+
+    function updateFeatureButtons() {
+      [1, 2, 3].forEach(n => {
+        const btn = document.getElementById('feat-' + n);
+        btn.classList.toggle('feat-on', feats[n] === 1);
+        btn.querySelector('strong').textContent = feats[n];
+      });
+    }
+
+    function recalcNN() {
+      const w1 = feats[1] ? 0.85 : 0.15;
+      const w2 = feats[2] ? 0.90 : 0.10;
+      const w3 = feats[3] ? 0.92 : 0.10;
+
+      document.getElementById('hnode-1').classList.toggle('active-node', feats[1] === 1);
+      document.getElementById('hnode-1-val').textContent = `Сигнал: ${w1}`;
+      document.getElementById('hnode-2').classList.toggle('active-node', feats[2] === 1);
+      document.getElementById('hnode-2-val').textContent = `Сигнал: ${w2}`;
+      document.getElementById('hnode-3').classList.toggle('active-node', feats[3] === 1);
+      document.getElementById('hnode-3-val').textContent = `Сигнал: ${w3}`;
+
+      let catScore = (feats[1] * 45) + (feats[2] * 49) - (feats[3] * 35);
+      catScore = Math.max(5, Math.min(96, catScore));
+      if (feats[1] === 0 && feats[2] === 0 && feats[3] === 0) catScore = 50;
+      const dogScore = 100 - catScore;
+
+      document.getElementById('prob-cat').textContent = catScore + '%';
+      document.getElementById('prob-dog').textContent = dogScore + '%';
+
+      const isCat = catScore >= dogScore;
+      document.getElementById('out-cat').classList.toggle('winner-node', isCat);
+      document.getElementById('out-dog').classList.toggle('winner-node', !isCat);
+      document.getElementById('nn-verdict').textContent = isCat
+        ? '✅ Решение ИИ: Распознана КОШКА!'
+        : '✅ Решение ИИ: Распознана СОБАКА!';
+    }
+
+    /* МОДУЛЬ 3: ПРИМЕНЕНИЕ ИИ */
+    function runFaceScan() {
+      markProgress('app_face');
+      const icon = document.getElementById('face-icon');
+      const st = document.getElementById('face-status');
+      icon.textContent = '📐';
+      st.textContent = 'Шаг 1: Построение сетки из 68 ключевых точек лица...';
+      setTimeout(() => {
+        icon.textContent = '🔢';
+        st.textContent = 'Шаг 2: Перевод геометрии лица в вектор [0.84, 0.19, 0.91]...';
+      }, 700);
+      setTimeout(() => {
+        icon.textContent = '🔓';
+        st.textContent = '✅ Шаг 3: Совпадение 99.4% с базой! Доступ открыт.';
+      }, 1400);
+    }
+
+    function runVoiceAssistant() {
+      markProgress('app_voice');
+      const val = document.getElementById('voice-cmd').value;
+      const box = document.getElementById('voice-pipeline');
+      if (val === 'weather') {
+        box.innerHTML = '1. <strong>ASR (Звук ➔ Текст):</strong> «погода Бишкек завтра»<br>2. <strong>NLP (Смысл):</strong> Запрос прогноза метеосервиса<br>3. <strong>Ответ ИИ:</strong> «Завтра в Бишкеке солнечно, +14°C!»';
+      } else if (val === 'alarm') {
+        box.innerHTML = '1. <strong>ASR (Звук ➔ Текст):</strong> «будильник 07:00»<br>2. <strong>NLP (Смысл):</strong> Вызов системного таймера ОС<br>3. <strong>Ответ ИИ:</strong> «Будильник успешно установлен на 7:00!»';
+      } else {
+        box.innerHTML = '1. <strong>ASR (Звук ➔ Текст):</strong> «что такое нейронная сеть»<br>2. <strong>NLP (Смысл):</strong> Поиск определения в базе знаний<br>3. <strong>Ответ ИИ:</strong> «Это математическая модель, обучающаяся на примерах!»';
+      }
+    }
+
+    function setRoad(state) {
+      markProgress('app_car');
+      const box = document.getElementById('car-status');
+      if (state === 'clear') {
+        box.style.color = '#10b981';
+        box.textContent = '🟢 Лидар и камеры: Полоса свободна ➔ Решение ИИ: Плавное движение 60 км/ч.';
+      } else if (state === 'pedestrian') {
+        box.style.color = '#ef4444';
+        box.textContent = '🛑 Камера распознала человека на переходе! ➔ Решение ИИ: Экстренное торможение за 0.02 сек!';
+      } else {
+        box.style.color = '#f59e0b';
+        box.textContent = '🚧 Радар обнаружил ремонт дороги ➔ Решение ИИ: Включить поворотник и безопасно перестроиться.';
+      }
+    }
+
+    /* МОДУЛЬ 4: ЭТИКА И БЕЗОПАСНОСТЬ */
+    function checkEthics(num, val) {
+      const card = document.getElementById('eth-' + num);
+      const msg = document.getElementById('eth-msg-' + num);
+      if (val === 'ok') {
+        card.classList.add('solved');
+        msg.style.color = '#10b981';
+        msg.textContent = '✅ Абсолютно верно! Правило цифровой безопасности соблюдено.';
+        markProgress('eth_' + num);
+      } else {
+        card.classList.remove('solved');
+        msg.style.color = '#ef4444';
+        msg.textContent = '❌ Опасно! Подумай о рисках подделки и утечки данных.';
+      }
+    }
+
+    /* МОДУЛЬ 5: ВИКТОРИНА */
+    const quizData = [
+      {
+        q: '1. Чем Машинное обучение (ML) отличается от обычной компьютерной программы?',
+        options: [
+          'Оно не требует электричества',
+          'Алгоритм сам находит закономерности на тысячах примеров (датасете), а не действует только по жёстким правилам',
+          'Оно работает только без процессора',
+          'Обычные программы работают быстрее света'
+        ],
+        answer: 1,
+        explain: 'Верно! В машинном обучении компьютер учится на примерах и опыте.'
+      },
+      {
+        q: '2. Как в информатике называют автономную систему ИИ, которая считывает среду через сенсоры и выполняет действия для достижения цели?',
+        options: [
+          'Искусственный агент',
+          'Текстовый документ',
+          'Папка с файлами',
+          'Клавиатура'
+        ],
+        answer: 0,
+        explain: 'Точно! Беспилотный автомобиль или робот-пылесос — это классический искусственный агент.'
+      },
+      {
+        q: '3. Из каких основных слоёв состоит искусственная нейронная сеть?',
+        options: [
+          'Верхний, средний и нижний корпус',
+          'Входной слой, скрытые слои и выходной слой',
+          'Только из одного провода',
+          'Из монитора и мышки'
+        ],
+        answer: 1,
+        explain: 'Правильно! Входной слой принимает признаки, скрытые слои вычисляют веса, а выходной выдаёт ответ.'
+      },
+      {
+        q: '4. Как система распознавания лиц в смартфоне узнаёт владельца?',
+        options: [
+          'Спрашивает имя вслух',
+          'Измеряет пропорции и ключевые точки лица, превращая их в числовой биометрический код',
+          'По цвету куртки',
+          'По заряду батареи'
+        ],
+        answer: 1,
+        explain: 'Верно! Компьютерное зрение строит математическую карту лица.'
+      },
+      {
+        q: '5. Что такое «Дипфейк» (Deepfake), о котором важно помнить для безопасности?',
+        options: [
+          'Быстрая зарядка смартфона',
+          'Сгенерированная нейросетью правдоподобная подделка фото, видео или голоса человека',
+          'Настройка яркости экрана',
+          'Вид оперативной памяти'
+        ],
+        answer: 1,
+        explain: 'Отлично! Дипфейки используют для подделки видео и голоса, поэтому информацию важно проверять.'
+      },
+      {
+        q: '6. Почему ответы генеративных нейросетей по сложным темам всегда нужно перепроверять?',
+        options: [
+          'Нейросети могут «галлюцинировать» — уверенно придумывать несуществующие факты',
+          'Потому что экран может погаснуть',
+          'Потому что нейросети пишут только на английском',
+          'Проверять никогда не нужно'
+        ],
+        answer: 0,
+        explain: 'Верно! ИИ генерирует наиболее вероятный текст, но ответственность за точность фактов всегда лежит на человеке.'
+      }
+    ];
+
+    let qIndex = 0, qScore = 0, qAnswered = false;
+
+    function renderQuiz() {
+      const item = quizData[qIndex];
+      qAnswered = false;
+      document.getElementById('quiz-progress').textContent = `Вопрос ${qIndex + 1} из ${quizData.length}`;
+      document.getElementById('quiz-score-badge').textContent = `Счёт: ${qScore} / ${quizData.length}`;
+      document.getElementById('quiz-question').textContent = item.q;
+      document.getElementById('quiz-feedback').style.display = 'none';
+      document.getElementById('quiz-next-btn').style.display = 'none';
+
+      const optContainer = document.getElementById('quiz-options');
+      optContainer.innerHTML = '';
+      item.options.forEach((optText, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-option';
+        btn.textContent = optText;
+        btn.onclick = () => checkAnswer(idx, btn);
+        optContainer.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selectedIdx, btnElement) {
+      if (qAnswered) return;
+      qAnswered = true;
+      const item = quizData[qIndex];
+      const allButtons = document.querySelectorAll('.quiz-option');
+      if (selectedIdx === item.answer) {
+        qScore++;
+        btnElement.classList.add('correct');
+        markProgress('quiz_' + qIndex);
+      } else {
+        btnElement.classList.add('wrong');
+        allButtons[item.answer].classList.add('correct');
+      }
+      document.getElementById('quiz-score-badge').textContent = `Счёт: ${qScore} / ${quizData.length}`;
+      const fb = document.getElementById('quiz-feedback');
+      fb.innerHTML = (qIndex === quizData.length - 1)
+        ? `<strong>🎉 Тест завершён! Ваш результат: ${qScore} из ${quizData.length}.</strong><br>${item.explain}`
+        : item.explain;
+      fb.style.display = 'block';
+      if (qIndex < quizData.length - 1) document.getElementById('quiz-next-btn').style.display = 'inline-flex';
+    }
+
+    function nextQuizQuestion() { if (qIndex < quizData.length - 1) { qIndex++; renderQuiz(); } }
+    function restartQuiz() { qIndex = 0; qScore = 0; renderQuiz(); }
+
+    /* МОДУЛЬ 6: КОНСТРУКТОР ЭССЕ ДЛЯ ДЗ */
+    const essayPlans = {
+      helper: `ПЛАН ЭССЕ: «ИИ — главный помощник человека»
+1. Вступление: Искусственный интеллект уже сегодня окружает нас в смартфонах, медицине и образовании.
+2. Аргумент 1 (Польза): Нейросети помогают врачам находить болезни на снимках, а автопилоты снижают число аварий.
+3. Аргумент 2 (Учёба и труд): Виртуальные помощники освобождают людей от скучной рутины для творчества.
+4. Вывод: При соблюдении правил безопасности ИИ — это мощный инструмент, который делает жизнь человека лучше и безопаснее.`,
+
+      threat: `ПЛАН ЭССЕ: «Почему к развитию ИИ нужно относиться с осторожностью?»
+1. Вступление: Быстрое развитие нейросетей приносит не только удобства, но и серьёзные риски для общества.
+2. Аргумент 1 (Безопасность): Технологии дипфейков позволяют мошенникам подделывать голос и видео людей.
+3. Аргумент 2 (Зависимость и ошибки): ИИ может выдавать ложные факты («галлюцинации»), а слепое доверие к нему ослабляет собственное мышление.
+4. Вывод: Чтобы ИИ не стал угрозой, человечеству необходимы строгие законы этики и цифровая грамотность.`,
+
+      balance: `ПЛАН ЭССЕ: «Будущее ИИ: помощник или угроза? Всё зависит от человека»
+1. Вступление: Искусственный интеллект — это технология, которая сама по себе не является ни добром, ни злом.
+2. Аргумент «За» (Помощник): В руках учёных, врачей и инженеров нейросети ускоряют научные открытия и спасают жизни.
+3. Аргумент «Против» (Риски): В руках злоумышленников ИИ может использоваться для создания фейков и кражи персональных данных.
+4. Вывод: ИИ не заменит человека, но человек, умеющий грамотно и безопасно управлять ИИ, всегда будет на шаг впереди.`
+    };
+
+    function setEssayPlan(key) {
+      document.getElementById('essay-plan-box').textContent = essayPlans[key];
+      markProgress('essay_plan');
+    }
+
+    function copyEssayPlan() {
+      const text = document.getElementById('essay-plan-box').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copy-hw-btn');
+        btn.textContent = '✅ План эссе скопирован в телефон!';
+        btn.classList.add('btn-success');
+      }).catch(() => {});
+    }
+
+    // Инициализация
+    recalcNN();
+    setEssayPlan('balance');
+    renderQuiz();
+  </script>
+</body>
+</html>
